@@ -31,11 +31,8 @@ void loop() {
         
         float temperature = thermocouple.readCelsius();
         
-        Serial.print(minutes);
-        Serial.print(":");
-        if (seconds < 10) Serial.print("0");
-        Serial.print(seconds);
-        Serial.print(", ");
+        String timeString = String(minutes) + ":" + (seconds < 10 ? "0" : "") + String(seconds) + ", ";
+        Serial.print(timeString);
         
         bool isNearCritical = abs(temperature - CRITICAL_TEMP) < TEMP_THRESHOLD;
         digitalWrite(RELAY_PIN, isNearCritical ? LOW : HIGH);
