@@ -28,15 +28,17 @@ void loop() {
         unsigned long totalSeconds = currentMillis / 1000;
         int minutes = (totalSeconds / 60) % 60;
         int seconds = totalSeconds % 60;
+        int milliseconds = currentMillis % 1000;
         
         float temperature = thermocouple.readCelsius();
         
-        String timeString = String(minutes) + ":" + (seconds < 10 ? "0" : "") + String(seconds) + ", ";
-        Serial.print(timeString);
+        char timeBuffer[16];
+        sprintf(timeBuffer, "%d:%02d.%03d, ", minutes, seconds, milliseconds);
+        Serial.print(timeBuffer);
         
         bool isNearCritical = abs(temperature - CRITICAL_TEMP) < TEMP_THRESHOLD;
         digitalWrite(RELAY_PIN, isNearCritical ? LOW : HIGH);
-        isNearCritical ? Serial.print(F("**___Switched OFF___**")) : 0;
+        if (isNearCritical) Serial.print(F("**___Switched OFF___**"));
         
         Serial.print("Temp: ");
         Serial.println(temperature);
