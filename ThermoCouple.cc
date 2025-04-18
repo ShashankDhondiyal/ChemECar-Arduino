@@ -3,7 +3,7 @@
 const int THERMO_DO = 4;
 const int THERMO_CS = 5;
 const int THERMO_CLK = 6;
-const int RELAY_PIN = 3;
+const int RELAY_PIN = 2;
 const float CRITICAL_TEMP = 50.0;
 const float TEMP_THRESHOLD = 0.5;
 const unsigned long SAMPLE_INTERVAL = 250;
