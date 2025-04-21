@@ -4,8 +4,7 @@ const int THERMO_DO = 4;
 const int THERMO_CS = 5;
 const int THERMO_CLK = 6;
 const int RELAY_PIN = 2;
-const float CRITICAL_TEMP = 50.0;
-const float TEMP_THRESHOLD = 0.5;
+const float CRITICAL_TEMP = 40.0;
 const unsigned long SAMPLE_INTERVAL = 250;
 MAX6675 thermocouple(THERMO_CLK, THERMO_CS, THERMO_DO);
 unsigned long previousMillis = 0;
@@ -36,9 +35,12 @@ void loop() {
         sprintf(timeBuffer, "%d:%02d.%03d, ", minutes, seconds, milliseconds);
         Serial.print(timeBuffer);
         
-        bool isNearCritical = abs(temperature - CRITICAL_TEMP) < TEMP_THRESHOLD;
+        bool isNearCritical = temperature > CRITICAL_TEMP;
         digitalWrite(RELAY_PIN, isNearCritical ? LOW : HIGH);
-        if (isNearCritical) Serial.print(F("**___Switched OFF___**"));
+        if (isNearCritical) {
+            Serial.print(F("**___Switched OFF___**"));
+            exit(0);
+        }
         
         Serial.print("Temp: ");
         Serial.println(temperature);
