@@ -10,11 +10,11 @@ MAX6675 thermocouple(THERMO_CLK, THERMO_CS, THERMO_DO);
 
 
 // MicroSD card pins
-const int SD_CS = 10;                                              
+const int SD_CS = 10;                  // Orange                            
 // Additional wiring for micro SD 
-// pin 11 -> mosi
-// pin 12 -> miso
-// pin 13 -> sck
+// pin 11 -> mosi                      // Green
+// pin 12 -> miso                      // Yellow
+// pin 13 -> sck                       // blue
 
 // relay pins and conditions
 const int RELAY_PIN = 2;
