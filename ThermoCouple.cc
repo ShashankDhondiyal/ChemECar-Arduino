@@ -29,47 +29,57 @@ const float TEMP_BOUND = 0.0;
 unsigned long previousMillis = 0;
 
 void setup() {
-
-  SPI.begin();
-
-  // init and set relay on
+  Serial.begin(9600);
+  if (!SD.begin(4)) { // Adjust chip select pin as needed
+    Serial.println("Error: 1");
+    return;
+  }
   pinMode(RELAY_PIN, OUTPUT);
-  digitalWrite(RELAY_PIN, HIGH);
-
-  File myFile = SD.open("/datalog.csv", FILE_WRITE);
-  myFile.println();
-  myFile.print("Using this threshold Value: ");
-  myFile.print(TEMP_THRESHOLD);
-  myFile.println();
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-  float temperature = thermocouple.readCelsius();
-  if (currentMillis - previousMillis >= 250) {
-    previousMillis = currentMillis;
+  File myFile = SD.open("/datalog.csv", FILE_WRITE);
+  if (myFile) {
+    writeToMyFile(myFile, 1);
+  } else {
+    Serial.println("Error type: 2");
+  }
+}
 
-    unsigned long totalSeconds = currentMillis / 1000;
-    int minutes = (totalSeconds / 60) % 60;
-    int seconds = totalSeconds % 60;
-    int milliseconds = currentMillis % 1000;
+void writeToMyFile(File myFile, int type) {
+  if (type == 1) {
+    unsigned long currentMillis = millis();
+    float temperature = thermocouple.readCelsius();
 
-    char timeBuffer[16];
-    sprintf(timeBuffer, "%d:%02d.%03d", minutes, seconds, milliseconds);
+    if (currentMillis - previousMillis >= 250) {
+      previousMillis = currentMillis;
 
-    bool isAtCritical = temperature > (TEMP_THRESHOLD - TEMP_BOUND);
-    digitalWrite(RELAY_PIN, isAtCritical ? LOW : HIGH);
-    String status = isAtCritical ? "OFF" : "ON";
+      // Format time
+      unsigned long totalSeconds = currentMillis / 1000;
+      int minutes = (totalSeconds / 60) % 60;
+      int seconds = totalSeconds % 60;
+      int milliseconds = currentMillis % 1000;
+      char timeBuffer[16];
+      sprintf(timeBuffer, "%d:%02d.%03d", minutes, seconds, milliseconds);
 
-    File myFile = SD.open("/datalog.csv", FILE_WRITE);
-    if (myFile) {
+      // Write data to CSV
       myFile.print(timeBuffer);
       myFile.print(",");
       myFile.print(temperature);
-      myFile.print(",");
-      myFile.println(status);
-      myFile.close();
+      checkRelayStatus(myFile, temperature);
+      myFile.println();
     }
-  
+    // Removed else-block to avoid non-CSV content
+    myFile.close(); // Close after writing
+  }
+}
+
+void checkRelayStatus(File myFile, float temperature) {
+  bool isAtCritical = temperature > (TEMP_THRESHOLD - TEMP_BOUND);
+  digitalWrite(RELAY_PIN, isAtCritical ? LOW : HIGH);
+  if (isAtCritical) {
+    myFile.print("");
+  } else {
+    myFile.print(",OFF");
   }
 }
