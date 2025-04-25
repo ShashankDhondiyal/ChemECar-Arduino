@@ -30,7 +30,8 @@ unsigned long previousMillis = 0;
 
 void setup() {
   Serial.begin(9600);
-  if (!SD.begin(4)) { // Adjust chip select pin as needed
+  SPI.begin();
+  if (!SD.begin(10)) { // Adjust chip select pin as needed
     Serial.println("Error: 1");
     return;
   }
@@ -66,6 +67,7 @@ void writeToMyFile(File myFile, int type) {
       myFile.print(timeBuffer);
       myFile.print(",");
       myFile.print(temperature);
+      Serial.println(temperature);
       checkRelayStatus(myFile, temperature);
       myFile.println();
     }
@@ -83,3 +85,5 @@ void checkRelayStatus(File myFile, float temperature) {
     myFile.print(",OFF");
   }
 }
+
+
