@@ -31,7 +31,7 @@ unsigned long previousMillis = 0;
 void setup() {
   Serial.begin(9600);
   SPI.begin();
-  if (!SD.begin(10)) { // Adjust chip select pin as needed
+  if (!SD.begin(10)) {
     Serial.println("Error: 1");
     return;
   }
