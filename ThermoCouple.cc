@@ -50,7 +50,6 @@ void loop() {
 void writeToMyFile(File myFile, int type) {
   if (type == 1) {
     unsigned long currentMillis = millis();
-    float temperature = thermocouple.readCelsius();
 
     if (currentMillis - previousMillis >= 250) {
       previousMillis = currentMillis;
@@ -66,6 +65,7 @@ void writeToMyFile(File myFile, int type) {
       // Write data to CSV
       myFile.print(timeBuffer);
       myFile.print(",");
+      float temperature = thermocouple.readCelsius();
       myFile.print(temperature);
       Serial.println(temperature);
       checkRelayStatus(myFile, temperature);
