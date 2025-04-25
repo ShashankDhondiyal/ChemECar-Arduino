@@ -19,11 +19,10 @@ const int SD_CS = 10;                  // Orange
 // relay pins and conditions
 const int RELAY_PIN = 2;
 bool hasSwitched = false;
+bool isAtCritical = false;
 
 // ThermoCouple Temprature threshold *Adjustable*
-const float TEMP_THRESHOLD = 45.0;
-const float TEMP_BOUND = 0.0;
-
+const float TEMP_THRESHOLD = 35.0;
 
 // Time stuff
 unsigned long previousMillis = 0;
@@ -31,7 +30,7 @@ unsigned long previousMillis = 0;
 void setup() {
   Serial.begin(9600);
   SPI.begin();
-  if (!SD.begin(10)) {
+  if (!SD.begin(SD_CS)) {
     Serial.println("Error: 1");
     return;
   }
@@ -67,9 +66,12 @@ void writeToMyFile(File myFile, int type) {
       myFile.print(",");
       float temperature = thermocouple.readCelsius();
       myFile.print(temperature);
-      Serial.println(temperature);
+      Serial.print(timeBuffer);
+      Serial.print(", ");
+      Serial.print(temperature);
       checkRelayStatus(myFile, temperature);
       myFile.println();
+      Serial.println();
     }
     // Removed else-block to avoid non-CSV content
     myFile.close(); // Close after writing
@@ -77,13 +79,15 @@ void writeToMyFile(File myFile, int type) {
 }
 
 void checkRelayStatus(File myFile, float temperature) {
-  bool isAtCritical = temperature > (TEMP_THRESHOLD - TEMP_BOUND);
-  digitalWrite(RELAY_PIN, isAtCritical ? LOW : HIGH);
+  if (!isAtCritical) {
+    isAtCritical = temperature >= TEMP_THRESHOLD;
+    digitalWrite(RELAY_PIN, isAtCritical ? LOW : HIGH);
+  }
   if (isAtCritical) {
-    myFile.print("");
+    myFile.print(",ON");
+    Serial.print(",ON");
   } else {
     myFile.print(",OFF");
+    Serial.print(",OFF");
   }
 }
-
-
